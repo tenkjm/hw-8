@@ -102,3 +102,6 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+*.png
+*.pdf
+hw-08/public_data_link.txt
