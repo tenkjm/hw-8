@@ -51,7 +51,10 @@ def segmentation(unary_model, images):
 
         
     return [np.zeros(img.shape[:2]) for img in images]
-
+def get_class(tuple):
+    if(tuple(0)>tuple(1)):
+        return 1
+    return 0
 def segment_single(im, model):
     
     height, width, channels = im.shape
@@ -66,13 +69,34 @@ def segment_single(im, model):
         pad_left:pad_left + width,
         :] = im
     g = maxflow.Graph[float]()
-    nodes = g.add_grid_nodes(im.shape)
+    nodes = g.add_grid_nodes((width, height))
+    
 
-    for j in range(0, width-1):
-        for k in range(0, height-1):
-            prof = model.predict( im_bg[j:j+13, k:k+13])
-            g.add_grid_edges(nodes, phi_ij)
-            g.add_grid_tedges(nodes, phi_i1, phi_i0) 
+    for j in range(1, width-2):
+        for k in range(1, height-2):
+            profCenter = model.predict( im_bg[j:j+13, k:k+13])
+            profL = model.predict( im_bg[j:j+13+1, k:k+13])
+            profR = model.predict( im_bg[j:j+13-1, k:k+13])
+            profU = model.predict( im_bg[j:j+13, k:k+13+1])
+            profD = model.predict( im_bg[j:j+13, k:k+13-1])
+            pot_up =get_binary_potential(im_bg[j,k], im_bg[j,k+1]\
+            ,get_class(profCenter), get_class(profU) )
+            pot_down =get_binary_potential(im_bg[j,k], im_bg[j,k-1]\
+            ,get_class(profCenter), get_class(profD) )
+
+            pot_l =get_binary_potential(im_bg[j,k], im_bg[j-1,k]\
+            ,get_class(profCenter), get_class(profL) )
+            pot_r =get_binary_potential(im_bg[j,k], im_bg[j+1,k]\
+            ,get_class(profCenter), get_class(profR) )
+            structure = np.array([[0, pot_up, 3],
+                        [pot_l, 0, pot_r],
+                        [0, pot_down, 0]])
+            nodeids = nodes[j-1:j+1, k-1:k+1]
+            g.add_grid_edges(nodeids, weights=1, structure=structure, symmetric=False)
+            g.add_tende(nodes[j,k], get_unary_potential(profCenter) if profCenter(0)>profCenter(1) else 0,
+            get_unary_potential(profCenter) if profCenter(0)<profCenter(1) else 0)
+            
+            
     g.maxflow()
     graph = g.get_grid_segments(nodes)
 
