@@ -1,5 +1,4 @@
 import numpy as np
-import keras
 import math
 from keras.optimizers import SGD
 import maxflow
@@ -47,7 +46,8 @@ def train_unary_model(images, gt):
 def segmentation(unary_model, images):
     for i in range(0, 1):
         im = images[i]
-        height, width, channels = im.shape
+        return segment_single(im, unary_model)
+       # height, width, channels = im.shape
 
         
     return [np.zeros(img.shape[:2]) for img in images]
