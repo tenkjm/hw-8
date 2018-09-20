@@ -3,20 +3,17 @@ import math
 from keras.optimizers import SGD
 import maxflow
 from keras.models import Sequential
-from keras.layers import Flatten, Dense, Dropout, Activation
+from keras.layers import Flatten, Dense, Dropout
 from keras.layers.convolutional import Convolution2D, MaxPooling2D, ZeroPadding2D
+
 
 def train_unary_model(images, gt):
     model = vgg10()
-    X_train =  np.zeros((67628, 13, 13, 3))
-    Y_train = []
+    x_train = np.zeros((67628, 13, 13, 3))
+    y_train = []
     for i in range(0, 1):
         im = images[i]
         height, width, channels = im.shape
-
-        #print im.shape
-        #print gt
-        # make canvas
         im_bg = np.zeros((height+12, width+12, channels))
         im_bg = (im_bg + 1) * 255  # e.g., make it white
 
@@ -25,90 +22,86 @@ def train_unary_model(images, gt):
         pad_top = 6
 
         im_bg[pad_top:pad_top + height,
-            pad_left:pad_left + width,
-            :] = im
-        qt=0;
+              pad_left:pad_left + width, :] = im
+        qt = 0
         for j in range(0, width-1):
             for k in range(0, height-1):
+                y_train.append((1 if gt[i][k, j] == 1 else 0, 0 if gt[i][k, j] == 1 else 1))
+                x_train[qt] == im_bg[j:j+13, k:k+13]
+                qt += 1
 
-                #print 'dd' , i , 'j', j, 'k',k
-                Y_train.append(( 1 if gt[i][k,j]==1  else 0 , 0 if gt[i][k,j]==1  else 1))
-                X_train[qt]==im_bg[j:j+13, k:k+13]
-                qt+=1;
+    model.fit(x_train, y_train, batch_size=200,
+              nb_epoch=1, verbose=1, validation_split=0.1)
 
-    model.fit(np.array(X_train), np.array(Y_train),                # Train the model using the training set...
-          batch_size=200,
-          verbose=1, validation_split=0.1)
-    model.save("saved_weights.h5")
-
+    print model.predict(np.reshape(x_train[0], (1,  13, 13, 3)))
     return model
+
 
 def segmentation(unary_model, images):
     for i in range(0, 1):
         im = images[i]
-        return segment_single(im, unary_model)
-       # height, width, channels = im.shape
+        return [segment_single(im, unary_model)]
 
-        
-    return [np.zeros(img.shape[:2]) for img in images]
-def get_class(tuple):
-    if(tuple(0)>tuple(1)):
+
+def get_class(in_tuple):
+    if in_tuple[0][0] > in_tuple[0][1]:
         return 1
     return 0
+
+
 def segment_single(im, model):
-    
     height, width, channels = im.shape
     im_bg = np.zeros((height+12, width+12, channels))
     im_bg = (im_bg + 1) * 255  
 
     # Your work: Compute where it should be
-    pad_left = 6
+    pad_left = 6  # type: int
     pad_top = 6
 
     im_bg[pad_top:pad_top + height,
-        pad_left:pad_left + width,
-        :] = im
+          pad_left:pad_left + width, :] = im
     g = maxflow.Graph[float]()
-    nodes = g.add_grid_nodes((width, height))
-    
+    nodes = g.add_grid_nodes((height, width))
 
-    for j in range(1, width-2):
-        for k in range(1, height-2):
-            profCenter = model.predict( im_bg[j:j+13, k:k+13])
-            profL = model.predict( im_bg[j:j+13+1, k:k+13])
-            profR = model.predict( im_bg[j:j+13-1, k:k+13])
-            profU = model.predict( im_bg[j:j+13, k:k+13+1])
-            profD = model.predict( im_bg[j:j+13, k:k+13-1])
-            pot_up =get_binary_potential(im_bg[j,k], im_bg[j,k+1]\
-            ,get_class(profCenter), get_class(profU) )
-            pot_down =get_binary_potential(im_bg[j,k], im_bg[j,k-1]\
-            ,get_class(profCenter), get_class(profD) )
+    for j in range(1, height-26, 13):
+        for k in range(1, width-26, 13):
+            prof_center = model.predict(np.reshape(im_bg[j:j+13, k:k+13], (1,  13, 13, 3)))
+            prof_l = model.predict(np.reshape(im_bg[j+1:j+13+1, k:k+13], (1,  13, 13, 3)))
+            prof_r = model.predict(np.reshape(im_bg[j-1:j+13-1, k:k+13], (1,  13, 13, 3)))
+            prof_u = model.predict(np.reshape(im_bg[j:j+13, k+1:k+13+1], (1,  13, 13, 3)))
+            prof_d = model.predict(np.reshape(im_bg[j:j+13, k-1:k+13-1], (1,  13, 13, 3)))
+            pot_up = get_binary_potential(im_bg[j, k], im_bg[j, k+1],
+                                          get_class(prof_center), get_class(prof_u))
+            pot_down = get_binary_potential(im_bg[j, k], im_bg[j, k-1],
+                                            get_class(prof_center), get_class(prof_d))
 
-            pot_l =get_binary_potential(im_bg[j,k], im_bg[j-1,k]\
-            ,get_class(profCenter), get_class(profL) )
-            pot_r =get_binary_potential(im_bg[j,k], im_bg[j+1,k]\
-            ,get_class(profCenter), get_class(profR) )
-            structure = np.array([[0, pot_up, 3],
-                        [pot_l, 0, pot_r],
-                        [0, pot_down, 0]])
-            nodeids = nodes[j-1:j+1, k-1:k+1]
-            g.add_grid_edges(nodeids, weights=1, structure=structure, symmetric=False)
-            g.add_tende(nodes[j,k], get_unary_potential(profCenter) if profCenter(0)>profCenter(1) else 0,
-            get_unary_potential(profCenter) if profCenter(0)<profCenter(1) else 0)
-            
-            
+            pot_l = get_binary_potential(im_bg[j, k], im_bg[j-1, k],
+                                         get_class(prof_center), get_class(prof_l))
+            pot_r = get_binary_potential(im_bg[j, k], im_bg[j+1, k],
+                                         get_class(prof_center), get_class(prof_r))
+            weights = np.array([[0, pot_up, 0],
+                                  [pot_l, 0, pot_r],
+                                  [0, pot_down, 0]])
+            structure = np.array([[0, 1, 0],
+                                [1, 0, 1],
+                                [0, 1, 0]])
+            node_ids = nodes[j-1:j+2, k-1:k+2]
+            g.add_grid_edges(node_ids, weights=weights, structure=structure, symmetric=False)
+            g.add_tedge(nodes[j, k], get_unary_potential(prof_center) if prof_center[0][0] > prof_center[0][1] else 0,
+                        get_unary_potential(prof_center) if prof_center[0][0] < prof_center[0][1] else 0)
+            print 'j=',j,'k=',k
+
     g.maxflow()
-    graph = g.get_grid_segments(nodes)
+    return g.get_grid_segments(nodes)
 
-            
 
-def vgg10(weights_paty=None):
+def vgg10():
     model = Sequential()
-    model.add(ZeroPadding2D((1,1), input_shape=( 13,13,3)))
+    model.add(ZeroPadding2D((1, 1), input_shape=(13, 13, 3)))
     model.add(Convolution2D(5, 3, 3, activation='relu', name='conv1_1'))
-    model.add(ZeroPadding2D((1,1)))
+    model.add(ZeroPadding2D((1, 1)))
     model.add(Convolution2D(64, 3, 3, activation='relu', name='conv1_2'))
-    model.add(MaxPooling2D((2,2), strides=(2,2))) 
+    model.add(MaxPooling2D((2, 2), strides=(2, 2)))
     model.add(Flatten(name='flatten'))
     model.add(Dense(4024, activation='relu', name='dense_1'))
     model.add(Dropout(0.5))
@@ -117,21 +110,21 @@ def vgg10(weights_paty=None):
     
     model.add(Dense(2, activation='softmax', name='dense_3'))
 
-    model.compile(
-        loss='categorical_crossentropy', metrics=['accuracy'],
-        optimizer=SGD(lr=0.001, decay=1e-6, momentum=0.9, nesterov=True))
-
-   
+    model.compile(loss='categorical_crossentropy', metrics=['accuracy'],
+                  optimizer=SGD(lr=0.001, decay=1e-6, momentum=0.9, nesterov=True))
     return model
 
-def get_unary_potential(probability_tuple):
-    return -math.log(probability_tuple(0) if probability_tuple(0)>probability_tuple(1)  else probability_tuple(1))
 
-def get_binary_potential(yi, yj,classI, classJ):
-    A=0.5
-    B=0.5
+def get_unary_potential(probability_tuple):
+    return -math.log(probability_tuple[0][0]
+                     if probability_tuple[0][0] > probability_tuple[0][1] else probability_tuple[0][1])
+
+
+def get_binary_potential(yi, yj, class_i, class_j):
+    a = 0.5
+    b = 0.5
     sigma = 0.01
-    delta = 1 if classI==classJ else 0
-    psy = A+B*math.exp(-(np.linalg.dot(yi,yj)**2)/(2*sigma**2))
+    delta = 1 if class_i == class_j else 0
+    psy = a+b*math.exp(-(np.dot(yi, yj)**2)/(2*sigma**2))
     return (1-delta)*psy
 

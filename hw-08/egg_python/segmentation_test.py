@@ -48,6 +48,8 @@ train_imgs, train_gt = load_data(train_dir)
 unary_model = train_unary_model(train_imgs, train_gt)
 del train_imgs, train_gt
 test_imgs, test_gt = load_data(test_dir)
+test_imgs=test_imgs[0:1]
+test_gt=test_gt[0:1]
 test_predicted = segmentation(unary_model, test_imgs)
 result = computeIoU(test_predicted, test_gt)
 print("Result: %.4f" % result)
