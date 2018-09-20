@@ -27,26 +27,26 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="png" value="8" />
-          <entry key="py" value="9" />
+          <entry key="png" value="11" />
+          <entry key="py" value="10" />
           <entry key="txt" value="1" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="Image" value="8" />
+          <entry key="Image" value="11" />
           <entry key="PLAIN_TEXT" value="1" />
-          <entry key="Python" value="9" />
+          <entry key="Python" value="10" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="py" value="761" />
+          <entry key="py" value="919" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Python" value="761" />
+          <entry key="Python" value="919" />
         </counts>
       </usages-collector>
     </session>
@@ -56,13 +56,23 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/egg_python/segmentation.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="230">
-              <caret line="64" column="39" selection-start-line="64" selection-start-column="39" selection-end-line="64" selection-end-column="39" />
+            <state relative-caret-position="-25">
+              <caret line="14" column="24" selection-start-line="14" selection-start-column="24" selection-end-line="14" selection-end-column="24" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
             </state>
           </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/12-image-segmentation-pub/VID/000.png">
+          <provider selected="true" editor-type-id="images" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/12-image-segmentation-pub/gt/0000.png">
+          <provider selected="true" editor-type-id="images" />
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
@@ -111,18 +121,6 @@
               <item name="hw-08" type="b2602c69:ProjectViewProjectNode" />
               <item name="hw-08" type="462c0819:PsiDirectoryNode" />
               <item name="12-image-segmentation-pub" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="hw-08" type="b2602c69:ProjectViewProjectNode" />
-              <item name="hw-08" type="462c0819:PsiDirectoryNode" />
-              <item name="12-image-segmentation-pub" type="462c0819:PsiDirectoryNode" />
-              <item name="gt" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="hw-08" type="b2602c69:ProjectViewProjectNode" />
-              <item name="hw-08" type="462c0819:PsiDirectoryNode" />
-              <item name="12-image-segmentation-pub" type="462c0819:PsiDirectoryNode" />
-              <item name="images" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="hw-08" type="b2602c69:ProjectViewProjectNode" />
@@ -202,12 +200,12 @@
     <frame x="-8" y="-8" width="1616" height="876" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.48849106" visible="true" weight="0.21578613" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.48849106" visible="true" weight="0.21578613" />
       <window_info id="Structure" order="1" sideWeight="0.51150894" side_tool="true" visible="true" weight="0.21578613" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.43002915" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.43002915" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.47959185" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -229,7 +227,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/egg_python/segmentation.py</url>
-          <line>64</line>
+          <line>63</line>
           <option name="timeStamp" value="6" />
         </line-breakpoint>
       </breakpoints>
@@ -263,12 +261,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/12-image-segmentation-pub/gt/0000.png">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/12-image-segmentation-pub/VID/000.png">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
     <entry file="file://$USER_HOME$/Anaconda21/Lib/site-packages/Keras-1.0.5-py2.7.egg/keras/models.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="29">
@@ -283,10 +275,23 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$USER_HOME$/Anaconda21/Lib/site-packages/numpy/lib/shape_base.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="69">
+          <caret line="969" column="4" selection-start-line="969" selection-start-column="4" selection-end-line="969" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/12-image-segmentation-pub/gt/0000.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/12-image-segmentation-pub/VID/000.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
     <entry file="file://$PROJECT_DIR$/egg_python/segmentation.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="230">
-          <caret line="64" column="39" selection-start-line="64" selection-start-column="39" selection-end-line="64" selection-end-column="39" />
+        <state relative-caret-position="-25">
+          <caret line="14" column="24" selection-start-line="14" selection-start-column="24" selection-end-line="14" selection-end-column="24" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>

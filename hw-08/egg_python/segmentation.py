@@ -34,7 +34,6 @@ def train_unary_model(images, gt):
     model.fit(np.array(x_train), y_train, batch_size=200,
               nb_epoch=1, verbose=1, validation_split=0.1)
 
-    print model.predict(np.reshape(x_train[0], (1,  13, 13, 3)))
     return model
 
 
@@ -62,10 +61,10 @@ def segment_single(im, model):
     im_bg[pad_top:pad_top + height,
           pad_left:pad_left + width, :] = im
     g = maxflow.Graph[float]()
-    nodes = g.add_grid_nodes((height-13, width))
+    nodes = g.add_grid_nodes((int((height-13)/13), int((width-13)/13)))
 
-    for j in range(1, height-13, 13):
-        for k in range(1, width-16, 13):
+    for j in range(27, height-40, 13):
+        for k in range(27, width-40, 13):
             prof_center = model.predict(np.reshape(im_bg[j:j+13, k:k+13], (1,  13, 13, 3)))
             print prof_center
             prof_l = model.predict(np.reshape(im_bg[j+1:j+13+1, k:k+13], (1,  13, 13, 3)))
@@ -85,16 +84,24 @@ def segment_single(im, model):
                                   [pot_l, 0, pot_r],
                                   [0, pot_down, 0]])
             structure = np.array([[0, 1, 0],
-                                [1, 0, 1],
-                                [0, 1, 0]])
-            node_ids = nodes[j-1:j+2, k-1:k+2]
+                                 [1, 0, 1],
+                                 [0, 1, 0]])
+            jg = int(j/13)
+            kg = int(k/13)
+            node_ids = nodes[jg-1:jg+2, kg-1:kg+2]
             g.add_grid_edges(node_ids, weights=weights, structure=structure, symmetric=False)
-            g.add_tedge(nodes[j, k], get_unary_potential(prof_center) if prof_center[0][0] > prof_center[0][1] else 0,
-                        get_unary_potential(prof_center) if prof_center[0][0] < prof_center[0][1] else 0)
-            print 'j=',j,'k=',k
+            g.add_tedge(nodes[jg, kg], get_unary_potential(prof_center) if prof_center[0][0] < prof_center[0][1] else 0,
+                        get_unary_potential(prof_center) if prof_center[0][0] > prof_center[0][1] else 0)
+            print 'j=', j, 'k=', k
 
     g.maxflow()
-    return g.get_grid_segments(nodes)
+    ret = np.kron(g.get_grid_segments(nodes), np.ones((13, 13)));
+    im_bg = np.zeros((height, width ))
+
+
+    im_bg[18:18 +213,
+    21:21 + 299] = ret
+    return  im_bg
 
 
 def vgg10():
