@@ -24,9 +24,9 @@ def train_unary_model(images, gt):
         im_bg[pad_top:pad_top + height,
               pad_left:pad_left + width, :] = im
         qt = 0
-        for j in range(0, width-1):
-            for k in range(0, height-1):
-                y_train.append((1 if gt[i][k, j] == 1 else 0, 0 if gt[i][k, j] == 1 else 1))
+        for j in range(0, height-1):
+            for k in range(0, width-1):
+                y_train.append((1 if gt[i][j, k] == 1 else 0, 0 if gt[i][j, k] == 1 else 1))
                 x_train[qt] == im_bg[j:j+13, k:k+13]
                 qt += 1
 
@@ -66,6 +66,7 @@ def segment_single(im, model):
     for j in range(1, height-26, 13):
         for k in range(1, width-26, 13):
             prof_center = model.predict(np.reshape(im_bg[j:j+13, k:k+13], (1,  13, 13, 3)))
+            print prof_center
             prof_l = model.predict(np.reshape(im_bg[j+1:j+13+1, k:k+13], (1,  13, 13, 3)))
             prof_r = model.predict(np.reshape(im_bg[j-1:j+13-1, k:k+13], (1,  13, 13, 3)))
             prof_u = model.predict(np.reshape(im_bg[j:j+13, k+1:k+13+1], (1,  13, 13, 3)))
