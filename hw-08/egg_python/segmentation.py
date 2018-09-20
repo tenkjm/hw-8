@@ -9,9 +9,10 @@ from keras.layers.convolutional import Convolution2D, MaxPooling2D, ZeroPadding2
 
 def train_unary_model(images, gt):
     model = vgg10()
-    x_train = np.zeros((67628, 13, 13, 3))
+    x_train = []
     y_train = []
-    for i in range(0, 1):
+    qt = 0
+    for i in range(0, 62):
         im = images[i]
         height, width, channels = im.shape
         im_bg = np.zeros((height+12, width+12, channels))
@@ -23,14 +24,14 @@ def train_unary_model(images, gt):
 
         im_bg[pad_top:pad_top + height,
               pad_left:pad_left + width, :] = im
-        qt = 0
-        for j in range(0, height-1):
-            for k in range(0, width-1):
+
+        for j in range(0, height-1, 5):
+            for k in range(0, width-1,5):
                 y_train.append((1 if gt[i][j, k] == 1 else 0, 0 if gt[i][j, k] == 1 else 1))
-                x_train[qt] == im_bg[j:j+13, k:k+13]
+                x_train.append( im_bg[j:j+13, k:k+13])
                 qt += 1
 
-    model.fit(x_train, y_train, batch_size=200,
+    model.fit(np.array(x_train), y_train, batch_size=200,
               nb_epoch=1, verbose=1, validation_split=0.1)
 
     print model.predict(np.reshape(x_train[0], (1,  13, 13, 3)))
@@ -61,10 +62,10 @@ def segment_single(im, model):
     im_bg[pad_top:pad_top + height,
           pad_left:pad_left + width, :] = im
     g = maxflow.Graph[float]()
-    nodes = g.add_grid_nodes((height, width))
+    nodes = g.add_grid_nodes((height-13, width))
 
-    for j in range(1, height-26, 13):
-        for k in range(1, width-26, 13):
+    for j in range(1, height-13, 13):
+        for k in range(1, width-16, 13):
             prof_center = model.predict(np.reshape(im_bg[j:j+13, k:k+13], (1,  13, 13, 3)))
             print prof_center
             prof_l = model.predict(np.reshape(im_bg[j+1:j+13+1, k:k+13], (1,  13, 13, 3)))
